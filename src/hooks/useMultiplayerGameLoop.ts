@@ -114,6 +114,7 @@ export function useMultiplayerGameLoop(
   const statusRef = useRef<MultiplayerStatus>('ready')
   const animationFrameRef = useRef<number>(0)
   const countdownIntervalRef = useRef<number | null>(null)
+  const countdownStartedRef = useRef(false)
   
   // Update status ref when state changes
   useEffect(() => {
@@ -511,11 +512,13 @@ export function useMultiplayerGameLoop(
     setLocalReadyState(false)
     setRemoteReady(false)
     setCountdown(null)
+    countdownStartedRef.current = false
   }, [resetGameState])
   
   // Start countdown when both players ready
   useEffect(() => {
-    if (localReady && remoteReady && status === 'ready') {
+    if (localReady && remoteReady && status === 'ready' && !countdownStartedRef.current) {
+      countdownStartedRef.current = true
       setCountdown(3)
       setStatus('countdown')
       
@@ -524,6 +527,7 @@ export function useMultiplayerGameLoop(
           if (prev === null || prev <= 1) {
             if (countdownIntervalRef.current) {
               clearInterval(countdownIntervalRef.current)
+              countdownIntervalRef.current = null
             }
             // Host starts the game
             if (isHost) {
@@ -535,13 +539,16 @@ export function useMultiplayerGameLoop(
         })
       }, 1000)
     }
-    
+  }, [localReady, remoteReady, status, isHost, startGame])
+  
+  // Cleanup countdown interval on unmount
+  useEffect(() => {
     return () => {
       if (countdownIntervalRef.current) {
         clearInterval(countdownIntervalRef.current)
       }
     }
-  }, [localReady, remoteReady, status, isHost, startGame])
+  }, [])
   
   // Set up game loop and keyboard listeners
   useEffect(() => {
