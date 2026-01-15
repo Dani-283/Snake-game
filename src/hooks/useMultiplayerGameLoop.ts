@@ -368,10 +368,10 @@ export function useMultiplayerGameLoop(
     
     // Process tick when enough time accumulated
     while (state.accumulatedTime >= speed && statusRef.current === 'playing') {
-      // Send our input for CURRENT tick (before processing)
+      // Send our input for next tick
       const inputMessage: TickInputMessage = {
         type: 'tick_input',
-        tick: state.tick,
+        tick: state.tick + 1,
         direction: state.localDirection,
       }
       sendMessage(inputMessage)
@@ -408,15 +408,9 @@ export function useMultiplayerGameLoop(
         state.accumulatedTime = 0
         state.lastTimestamp = performance.now()
         state.remoteInputs.clear()
-        state.localDirection = null  // Reset local direction
-        state.inputProcessedThisTick = false
         
-        // Send our tick 0 input immediately (null = no direction change)
-        sendMessage({
-          type: 'tick_input',
-          tick: 0,
-          direction: null,
-        })
+        // Set initial "no input" for tick 0
+        state.remoteInputs.set(0, null)
         
         setPlayer1({ ...state.player1 })
         setPlayer2({ ...state.player2 })
@@ -440,7 +434,7 @@ export function useMultiplayerGameLoop(
         // Handle rematch accept
         break
     }
-  }, [sendMessage])
+  }, [])
   
   // Handle keyboard input
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -490,21 +484,15 @@ export function useMultiplayerGameLoop(
     state.accumulatedTime = 0
     state.lastTimestamp = performance.now()
     state.remoteInputs.clear()
-    state.localDirection = null  // Reset local direction
-    state.inputProcessedThisTick = false
+    
+    // Set initial "no input" for tick 0
+    state.remoteInputs.set(0, null)
     
     // Send game start message to peer
     sendMessage({
       type: 'game_start',
       seed,
       timestamp: Date.now(),
-    })
-    
-    // Send our tick 0 input immediately (null = no direction change)
-    sendMessage({
-      type: 'tick_input',
-      tick: 0,
-      direction: null,
     })
     
     setPlayer1({ ...state.player1 })
