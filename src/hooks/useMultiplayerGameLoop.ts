@@ -11,11 +11,8 @@ import {
 } from '../types'
 import {
   KEY_TO_DIRECTION,
-  DIRECTIONS,
   getSpeed,
   LOCKSTEP_TIMEOUT_MS,
-  MP_P1_INITIAL_DIRECTION,
-  MP_P2_INITIAL_DIRECTION,
 } from '../constants'
 import {
   moveSnake,
@@ -31,7 +28,6 @@ import {
   getHungerPercentage,
   shouldFlashHunger,
   isOppositeDirection,
-  positionsEqual,
 } from '../utils/game'
 import { createRNG, generateSeed } from '../utils/random'
 
@@ -190,19 +186,7 @@ export function useMultiplayerGameLoop(
     state.localDirection = null
     state.inputProcessedThisTick = false
     
-    // 2. Move snakes (check if eating before move)
-    const p1Head = state.player1.snake[0]
-    const p2Head = state.player2.snake[0]
-    
-    const p1NextHead: Position = {
-      x: p1Head.x + state.player1.direction.x,
-      y: p1Head.y + state.player1.direction.y,
-    }
-    const p2NextHead: Position = {
-      x: p2Head.x + state.player2.direction.x,
-      y: p2Head.y + state.player2.direction.y,
-    }
-    
+    // 2. Move snakes
     // Move P1
     if (state.player1.isAlive) {
       state.player1.snake = moveSnake(state.player1.snake, state.player1.direction, false)

@@ -15,8 +15,6 @@ const ReadyRoom = ({
   onReady,
   onLeave,
 }: ReadyRoomProps) => {
-  const bothReady = localReady && remoteReady
-
   return (
     <div className="ready-room">
       <div className="ready-content">

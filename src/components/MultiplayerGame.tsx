@@ -1,6 +1,5 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { 
-  Position, 
   PlayerId, 
   GameWinner,
   NetworkMessage,
@@ -14,7 +13,6 @@ import {
   MP_COLORS,
 } from '../constants'
 import { useMultiplayerGameLoop } from '../hooks/useMultiplayerGameLoop'
-import { usePeerConnection } from '../hooks/usePeerConnection'
 import ReadyRoom from './ReadyRoom'
 
 interface MultiplayerGameProps {
@@ -57,7 +55,6 @@ const MultiplayerGame = ({
   const {
     player1,
     player2,
-    food,
     status,
     level,
     localReady,

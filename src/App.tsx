@@ -49,7 +49,6 @@ function App() {
   // Peer connection hook
   const {
     status: connectionStatus,
-    peerId,
     isHost,
     latency,
     hostGame,

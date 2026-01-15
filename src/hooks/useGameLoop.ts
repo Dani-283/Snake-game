@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
-import { Position, Direction, GameStatus, GameStateRefs } from '../types'
+import { Position, GameStatus, GameStateRefs } from '../types'
 import {
   INITIAL_DIRECTION,
   KEY_TO_DIRECTION,

@@ -3,7 +3,6 @@ import Peer, { DataConnection } from 'peerjs'
 import { 
   ConnectionStatus, 
   NetworkMessage,
-  PlayerId 
 } from '../types'
 import { 
   CONNECTION_TIMEOUT_MS, 
