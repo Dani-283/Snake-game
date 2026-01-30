@@ -231,39 +231,42 @@ export function useMultiplayerGameLoop(
     }
     
     // 9-10. Check food collisions and handle eating
-    if (state.player1.isAlive) {
-      const foodIndex = checkFoodCollision(state.player1.snake[0], state.food)
-      if (foodIndex >= 0) {
-        // Grow snake (add segment to tail)
-        const tail = state.player1.snake[state.player1.snake.length - 1]
-        state.player1.snake.push({ ...tail })
-        state.player1.score += 1
-        state.player1.hungerTicks = 0
-        
-        // Remove eaten food and spawn new
-        state.food.splice(foodIndex, 1)
-        const newFood = spawnFoodMP(state.rng, state.player1.snake, state.player2.snake, state.food)
-        if (newFood.x >= 0) {
-          state.food.push(newFood)
-        }
-      }
+    // Check BOTH collisions first before modifying food array
+    const p1FoodIndex = state.player1.isAlive ? checkFoodCollision(state.player1.snake[0], state.food) : -1
+    const p2FoodIndex = state.player2.isAlive ? checkFoodCollision(state.player2.snake[0], state.food) : -1
+    
+    // Collect food indices to remove (sorted high to low to avoid index shifting)
+    const foodToRemove: number[] = []
+    if (p1FoodIndex >= 0) foodToRemove.push(p1FoodIndex)
+    if (p2FoodIndex >= 0 && p2FoodIndex !== p1FoodIndex) foodToRemove.push(p2FoodIndex)
+    foodToRemove.sort((a, b) => b - a)  // Sort descending
+    
+    // Process P1 eating
+    if (p1FoodIndex >= 0) {
+      const tail = state.player1.snake[state.player1.snake.length - 1]
+      state.player1.snake.push({ ...tail })
+      state.player1.score += 1
+      state.player1.hungerTicks = 0
     }
     
-    if (state.player2.isAlive) {
-      const foodIndex = checkFoodCollision(state.player2.snake[0], state.food)
-      if (foodIndex >= 0) {
-        // Grow snake
-        const tail = state.player2.snake[state.player2.snake.length - 1]
-        state.player2.snake.push({ ...tail })
-        state.player2.score += 1
-        state.player2.hungerTicks = 0
-        
-        // Remove eaten food and spawn new
-        state.food.splice(foodIndex, 1)
-        const newFood = spawnFoodMP(state.rng, state.player1.snake, state.player2.snake, state.food)
-        if (newFood.x >= 0) {
-          state.food.push(newFood)
-        }
+    // Process P2 eating
+    if (p2FoodIndex >= 0) {
+      const tail = state.player2.snake[state.player2.snake.length - 1]
+      state.player2.snake.push({ ...tail })
+      state.player2.score += 1
+      state.player2.hungerTicks = 0
+    }
+    
+    // Remove eaten food (from high to low index to avoid shifting)
+    for (const index of foodToRemove) {
+      state.food.splice(index, 1)
+    }
+    
+    // Spawn new food for each removed food
+    for (let i = 0; i < foodToRemove.length; i++) {
+      const newFood = spawnFoodMP(state.rng, state.player1.snake, state.player2.snake, state.food)
+      if (newFood.x >= 0) {
+        state.food.push(newFood)
       }
     }
     
